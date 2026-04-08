@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapid Events</title>
+</head>
+<body>
+  <button id="start-rapid">Start Rapid Events</button>
+  <div id="target-area"></div>
+
+  <script>
+    document.getElementById('start-rapid').addEventListener('click', () => {
+      const area = document.getElementById('target-area');
+      // Dispatch 20 events very quickly
+      for (let i = 0; i < 20; i++) {
+        const btn = document.createElement('button');
+        btn.id = 'rapid-btn-' + i;
+        area.appendChild(btn);
+        
+        // Dispatch synthetic click immediately
+        btn.dispatchEvent(new Event('click', { bubbles: true }));
+      }
+    });
+  </script>
+</body>
+</html>

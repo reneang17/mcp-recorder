@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Complex Form</title>
+</head>
+<body>
+  <h1>Complex Form</h1>
+  <form id="complex-form" action="/submit" method="POST">
+    <select id="country" name="country">
+      <option value="CA">Canada</option>
+      <option value="US">United States</option>
+      <option value="UK">United Kingdom</option>
+    </select>
+
+    <label><input type="checkbox" id="agree" name="agree" value="yes"> I agree</label>
+    
+    <div>
+      <label><input type="radio" id="color-red" name="color" value="red"> Red</label>
+      <label><input type="radio" id="color-blue" name="color" value="blue"> Blue</label>
+    </div>
+
+    <textarea id="comments" name="comments">Initial</textarea>
+
+    <button type="submit" id="submit-btn" data-testid="complex-submit">Submit</button>
+  </form>
+</body>
+</html>

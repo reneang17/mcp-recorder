@@ -161,7 +161,12 @@ export class DomCapture {
     this.events = [];
     this.injected = false;
 
+    // Enable required domains
+    await this.connection.Runtime.enable();
+    await this.connection.Page.enable();
+
     // Set up binding so the page can push events to us in real time
+    // This binding survives page navigations
     try {
       await this.connection.Runtime.addBinding({
         name: this.bindingName,
@@ -185,7 +190,6 @@ export class DomCapture {
       }
     );
 
-    await this.connection.Runtime.enable();
     await this.injectScript();
 
     // Fallback poller for edge cases
@@ -194,15 +198,23 @@ export class DomCapture {
 
   /**
    * Inject the DOM capture script into the page.
+   * Uses addScriptToEvaluateOnNewDocument so it survives page navigations.
    */
   async injectScript(): Promise<void> {
     if (!this.connection) return;
 
     try {
+      // 1. Ensure it runs on all future navigations
+      await this.connection.Page.addScriptToEvaluateOnNewDocument({
+        source: getDomCaptureScript(this.bindingName),
+      });
+
+      // 2. Also inject into the CURRENT page immediately
       await this.connection.Runtime.evaluate({
         expression: getDomCaptureScript(this.bindingName),
         awaitPromise: false,
       });
+      
       this.injected = true;
     } catch (err) {
       console.error('[DomCapture] Failed to inject script:', err);

@@ -1,0 +1,94 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/nottwo/work/mcp-browser-recorder/mcp-recorder
+
+ ❯ tests/integration/dom-capture.test.ts  (1 test | 1 failed) 3271ms
+   ❯ tests/integration/dom-capture.test.ts > Real DOM Event Capture > captures complex user interactions in a form
+     → expected undefined not to be undefined
+ ❯ tests/integration/selectors.test.ts  (1 test | 1 failed) 4007ms
+   ❯ tests/integration/selectors.test.ts > Selectors Priority Testing > selects the best CSS selector according to priority chain
+     → expected 'body > div > div > span' to match /html > body > div > div > span/i
+ ✓ tests/integration/network-capture.test.ts  (3 tests) 4586ms
+ ❯ tests/integration/recorder.test.ts  (3 tests | 2 failed) 6113ms
+   ❯ tests/integration/recorder.test.ts > Recorder Lifecycle & Correlator Integration > orchestrates full connect -> start -> interact -> stop
+     → expected 1 to be greater than or equal to 21
+   ❯ tests/integration/recorder.test.ts > Recorder Lifecycle & Correlator Integration > successfully correlates full step (DOM + Network)
+     → expected undefined not to be undefined
+ ❯ tests/integration/navigation.test.ts  (2 tests | 1 failed) 6962ms
+   ❯ tests/integration/navigation.test.ts > Navigation Survival via Runtime.addBinding > preserves events from multiple pages across navigation
+     → expected undefined not to be undefined
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration/dom-capture.test.ts > Real DOM Event Capture > captures complex user interactions in a form
+AssertionError: expected undefined not to be undefined
+ ❯ tests/integration/dom-capture.test.ts:55:25
+     53|     // Verify Select 'change' event
+     54|     const selectEvent = domEvents.find(e => e?.selector === '#country'…
+     55|     expect(selectEvent).toBeDefined();
+       |                         ^
+     56|     expect(selectEvent!.inputValue).toBe('UK');
+     57| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/integration/navigation.test.ts > Navigation Survival via Runtime.addBinding > preserves events from multiple pages across navigation
+AssertionError: expected undefined not to be undefined
+ ❯ tests/integration/navigation.test.ts:64:24
+     62|     );
+     63| 
+     64|     expect(page1Input).toBeDefined();
+       |                        ^
+     65|     expect(navClick).toBeDefined();
+     66|     expect(page2Click).toBeDefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/integration/recorder.test.ts > Recorder Lifecycle & Correlator Integration > orchestrates full connect -> start -> interact -> stop
+AssertionError: expected 1 to be greater than or equal to 21
+ ❯ tests/integration/recorder.test.ts:39:26
+     37|     // Because the script dispatches 20 automated button clicks from t…
+     38|     // plus the 1 click on the start-rapid button itself, we expect >=…
+     39|     expect(steps.length).toBeGreaterThanOrEqual(21);
+       |                          ^
+     40|     
+     41|     // Check indexing
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/integration/recorder.test.ts > Recorder Lifecycle & Correlator Integration > successfully correlates full step (DOM + Network)
+AssertionError: expected undefined not to be undefined
+ ❯ tests/integration/recorder.test.ts:72:24
+     70|     );
+     71| 
+     72|     expect(pairedStep).toBeDefined();
+       |                        ^
+     73|     
+     74|     // Make sure intentScore is null since post-filtering wasn't enabl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/integration/selectors.test.ts > Selectors Priority Testing > selects the best CSS selector according to priority chain
+AssertionError: expected 'body > div > div > span' to match /html > body > div > div > span/i
+
+- Expected: 
+/html > body > div > div > span/i
+
++ Received: 
+"body > div > div > span"
+
+ ❯ tests/integration/selectors.test.ts:59:33
+     57|     const spanEvent = domEvents.find(e => e?.innerText === 'Click me');
+     58|     expect(spanEvent).toBeDefined();
+     59|     expect(spanEvent!.selector).toMatch(/html > body > div > div > spa…
+       |                                 ^
+     60|   }, 15000);
+     61| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  4 failed | 1 passed (5)
+      Tests  5 failed | 5 passed (10)
+   Start at  11:09:09
+   Duration  7.38s (transform 123ms, setup 0ms, collect 1.01s, tests 24.94s, environment 0ms, prepare 300ms)
+

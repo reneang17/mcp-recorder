@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON Form</title>
+</head>
+<body>
+  <h1>JSON Form Test</h1>
+  <form id="json-form">
+    <input type="text" id="username" name="username" value="test_user" />
+    <input type="number" id="age" name="age" value="30" />
+    <button type="submit" id="submit-btn">Submit via JSON</button>
+  </form>
+
+  <script>
+    document.getElementById('json-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const payload = {
+        username: document.getElementById('username').value,
+        age: parseInt(document.getElementById('age').value, 10)
+      };
+
+      fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    });
+  </script>
+</body>
+</html>

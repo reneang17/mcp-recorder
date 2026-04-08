@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Error Page</title>
+</head>
+<body>
+  <button id="trigger-404">Trigger 404</button>
+  <button id="trigger-network-error">Trigger Network Error</button>
+
+  <script>
+    document.getElementById('trigger-404').addEventListener('click', () => {
+      fetch('/api/does-not-exist'); // Will return 404
+    });
+
+    document.getElementById('trigger-network-error').addEventListener('click', () => {
+      // Connect to a non-existent port to force a hard network error in browser
+      fetch('http://localhost:54321/fail').catch(() => {
+        // Ignored
+      }); 
+    });
+  </script>
+</body>
+</html>

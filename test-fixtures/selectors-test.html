@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Selectors Test</title>
+</head>
+<body>
+  <!-- Has everything: should use data-testid -->
+  <button id="btn1" name="btn1" aria-label="Label 1" data-testid="test-btn-1">Button 1</button>
+
+  <!-- No data-testid: should use id -->
+  <button id="btn2" name="btn2" aria-label="Label 2">Button 2</button>
+
+  <!-- No data-testid, no id: should use aria-label -->
+  <button name="btn3" aria-label="Label 3">Button 3</button>
+
+  <!-- Contains only name: should use tag_name[name="..."] -->
+  <input type="text" name="input4" value="val4" />
+
+  <!-- Has nothing, deeply nested: should use tag path -->
+  <div>
+    <div>
+      <span class="nested-span">Click me</span>
+    </div>
+  </div>
+</body>
+</html>

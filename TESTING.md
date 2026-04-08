@@ -50,19 +50,19 @@ Living document tracking the evolution of the test suite, what's passing, what's
 
 ### Infrastructure
 
-- [ ] Install `puppeteer` as dev dependency
-- [ ] Create `tests/helpers/puppeteer-harness.ts` — shared setup/teardown
-- [ ] Create 7 new test fixtures in `test-fixtures/`
+- [x] Install `puppeteer` as dev dependency
+- [x] Create `tests/helpers/puppeteer-harness.ts` — shared setup/teardown
+- [x] Create 7 new test fixtures in `test-fixtures/`
 
 ### New Test Files
 
-- [ ] `tests/integration/dom-capture.test.ts` — real clicks, typing, submit, Enter, select, checkbox
-- [ ] `tests/integration/navigation.test.ts` — **critical**: events survive page navigation
-- [ ] `tests/integration/network-capture.test.ts` — form POST, JSON POST, failed requests, noise filtering
-- [ ] `tests/integration/selectors.test.ts` — full priority chain (`data-testid > id > aria-label > name > tag path`)
-- [ ] `tests/integration/recorder.test.ts` — full lifecycle, correlated steps, post-filters
+- [x] `tests/integration/dom-capture.test.ts` — real clicks, typing, submit, Enter, select, checkbox
+- [x] `tests/integration/navigation.test.ts` — **critical**: events survive page navigation
+- [x] `tests/integration/network-capture.test.ts` — form POST, JSON POST, failed requests, noise filtering
+- [x] `tests/integration/selectors.test.ts` — full priority chain (`data-testid > id > aria-label > name > tag path`)
+- [x] `tests/integration/recorder.test.ts` — full lifecycle, correlated steps, post-filters
 
-### Status: ⏳ Not started
+### Status: ✅ Completed
 
 ---
 
@@ -103,6 +103,7 @@ Track every production code change made for testability or bug fixes discovered 
 | Date | File | Change | Reason |
 |------|------|--------|--------|
 | 2026-04-08 | `src/network-capture.ts` | Extracted `parseBody`, `detectEncoding`, `getContentType` into standalone exported functions | To allow unit testing of parsing logic without full class instantiation |
+| 2026-04-08 | `src/dom-capture.ts` | Switched from `Runtime.evaluate` to `Page.addScriptToEvaluateOnNewDocument` | Fix critical bug: capture script was lost on page navigations. Real integration tests caught this. |
 
 ---
 
@@ -112,3 +113,4 @@ Track every production code change made for testability or bug fixes discovered 
 |------|------|-------------|-----|-------|--------|
 | 2026-04-08 | 84/84 ✅ | 9/9 ✅ | — | 93/93 | `7612896` (initial commit) |
 | 2026-04-08 | 133/133 ✅ | — | — | 133/133 | (Phase 1 complete) |
+| 2026-04-08 | 133/133 ✅ | 10/10 ✅ | — | 143/143 | (Phase 2 complete) |
