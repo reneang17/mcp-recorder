@@ -6,8 +6,8 @@ import {
   applyUserIntentFilter,
   applySameOriginFilter,
   runPostFilters,
-} from '../src/post-filters';
-import { RecordedStep, DomEvent, NetworkRequest } from '../src/types';
+} from '../../src/post-filters';
+import { RecordedStep, DomEvent, NetworkRequest } from '../../src/types';
 
 // ── Test data factories ──
 

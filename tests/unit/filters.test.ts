@@ -11,8 +11,8 @@ import {
   filterFileExtensions,
   filterOptionsPreflight,
   runCaptureFilters,
-} from '../src/filters';
-import { DEFAULT_CAPTURE_FILTERS } from '../src/types';
+} from '../../src/filters';
+import { DEFAULT_CAPTURE_FILTERS } from '../../src/types';
 
 // ────────────────────────────────────────────────────────────────
 // Legacy API tests (backward compatibility)

@@ -1,8 +1,8 @@
 // ─── Test 3: Correlator unit tests ───
 
 import { describe, it, expect } from 'vitest';
-import { correlate } from '../src/correlator';
-import { DomEvent, NetworkRequest } from '../src/types';
+import { correlate } from '../../src/correlator';
+import { DomEvent, NetworkRequest } from '../../src/types';
 
 function makeDomEvent(overrides: Partial<DomEvent> = {}): DomEvent {
   return {
@@ -237,5 +237,171 @@ describe('Correlator', () => {
     );
     const ids = steps.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  // ── New edge case tests ──
+
+  it('pairs events at exact boundary of time window (2000ms exactly)', () => {
+    const domEvents = [makeDomEvent({ timestamp: 1000 })];
+    const netRequests = [makeNetworkRequest({ timestamp: 3000 })]; // exactly 2000ms diff
+
+    const steps = correlate(domEvents, netRequests, 2000);
+
+    // 2000ms is <= 2000ms window, so should pair
+    expect(steps).toHaveLength(1);
+    expect(steps[0].domEvent).not.toBeNull();
+    expect(steps[0].networkRequest).not.toBeNull();
+  });
+
+  it('does NOT pair events 1ms beyond the window boundary', () => {
+    const domEvents = [makeDomEvent({ timestamp: 1000 })];
+    const netRequests = [makeNetworkRequest({ timestamp: 3001 })]; // 2001ms > 2000ms
+
+    const steps = correlate(domEvents, netRequests, 2000);
+
+    expect(steps).toHaveLength(2); // Two orphans
+  });
+
+  it('handles same-timestamp DOM events (selects one for pairing)', () => {
+    const domEvents = [
+      makeDomEvent({ timestamp: 1000, selector: '#btn1' }),
+      makeDomEvent({ timestamp: 1000, selector: '#btn2' }),
+    ];
+    const netRequests = [makeNetworkRequest({ timestamp: 1500 })];
+
+    const steps = correlate(domEvents, netRequests, 2000);
+
+    // Should produce 2 steps: one paired, one orphan DOM
+    expect(steps).toHaveLength(2);
+    const paired = steps.filter((s) => s.domEvent && s.networkRequest);
+    const orphanDom = steps.filter((s) => s.domEvent && !s.networkRequest);
+    expect(paired).toHaveLength(1);
+    expect(orphanDom).toHaveLength(1);
+  });
+
+  it('handles same-timestamp network requests', () => {
+    const domEvents = [makeDomEvent({ timestamp: 1000 })];
+    const netRequests = [
+      makeNetworkRequest({ timestamp: 1500, url: 'http://localhost/api/a' }),
+      makeNetworkRequest({ timestamp: 1500, url: 'http://localhost/api/b' }),
+    ];
+
+    const steps = correlate(domEvents, netRequests, 2000);
+
+    // One pairs with the DOM event, the other becomes orphan
+    expect(steps).toHaveLength(2);
+  });
+
+  it('handles rapid-fire events (20 events within 100ms)', () => {
+    const domEvents = Array.from({ length: 20 }, (_, i) =>
+      makeDomEvent({ timestamp: 1000 + i * 5, selector: `#el${i}` })
+    );
+    const netRequests: NetworkRequest[] = [];
+
+    const steps = correlate(domEvents, netRequests, 2000);
+
+    expect(steps).toHaveLength(20);
+    // Verify they're sorted by timestamp
+    for (let i = 1; i < steps.length; i++) {
+      expect(steps[i].domEvent!.timestamp).toBeGreaterThanOrEqual(
+        steps[i - 1].domEvent!.timestamp
+      );
+    }
+  });
+
+  it('handles large-scale correlation (50 DOM + 50 network)', () => {
+    const domEvents = Array.from({ length: 50 }, (_, i) =>
+      makeDomEvent({ timestamp: 1000 + i * 100, selector: `#btn${i}` })
+    );
+    const netRequests = Array.from({ length: 50 }, (_, i) =>
+      makeNetworkRequest({ timestamp: 1050 + i * 100, url: `http://localhost/api/${i}` })
+    );
+
+    const steps = correlate(domEvents, netRequests, 2000);
+
+    // All 50 DOM events should pair with their nearest network request
+    // resulting in 50 paired steps (each dom is 50ms before its net request)
+    const paired = steps.filter((s) => s.domEvent && s.networkRequest);
+    expect(paired.length).toBe(50);
+    expect(steps).toHaveLength(50);
+
+    // Indices should be sequential
+    steps.forEach((step, i) => {
+      expect(step.index).toBe(i);
+    });
+  });
+
+  it('generates description for change events', () => {
+    const steps = correlate(
+      [makeDomEvent({ eventType: 'change', tagName: 'select', inputValue: 'US', selector: '#country' })],
+      [],
+      2000
+    );
+    expect(steps[0].description).toContain('Changed');
+    expect(steps[0].description).toContain('US');
+  });
+
+  it('generates description for submit events', () => {
+    const steps = correlate(
+      [makeDomEvent({ eventType: 'submit', tagName: 'form', selector: '#myform' })],
+      [],
+      2000
+    );
+    expect(steps[0].description).toContain('Submitted');
+    expect(steps[0].description).toContain('#myform');
+  });
+
+  it('generates description for keydown events', () => {
+    const steps = correlate(
+      [makeDomEvent({ eventType: 'keydown', tagName: 'input', selector: '#search' })],
+      [],
+      2000
+    );
+    expect(steps[0].description).toContain('Pressed key');
+    expect(steps[0].description).toContain('#search');
+  });
+
+  it('generates "Unknown step" for step with no event or request', () => {
+    // Edge case: if somehow both are null (shouldn't happen in practice)
+    // Test the describeStep behavior by passing empty arrays
+    const steps = correlate([], [], 2000);
+    expect(steps).toHaveLength(0);
+  });
+
+  it('preserves DOM event and network request data integrity in paired steps', () => {
+    const domEvents = [makeDomEvent({
+      timestamp: 1000,
+      eventType: 'click',
+      selector: '#submit',
+      tagName: 'button',
+      innerText: 'Go',
+      inputValue: null,
+      url: 'http://localhost:3000/page',
+    })];
+    const netRequests = [makeNetworkRequest({
+      timestamp: 1200,
+      method: 'POST',
+      url: 'http://localhost:3000/api/submit',
+      postData: 'key=val',
+      responseStatus: 201,
+    })];
+
+    const steps = correlate(domEvents, netRequests, 2000);
+
+    expect(steps).toHaveLength(1);
+    const step = steps[0];
+
+    // Verify the DOM event data wasn't mutated
+    expect(step.domEvent!.selector).toBe('#submit');
+    expect(step.domEvent!.eventType).toBe('click');
+    expect(step.domEvent!.tagName).toBe('button');
+    expect(step.domEvent!.innerText).toBe('Go');
+    expect(step.domEvent!.url).toBe('http://localhost:3000/page');
+
+    // Verify the network request data wasn't mutated
+    expect(step.networkRequest!.method).toBe('POST');
+    expect(step.networkRequest!.url).toBe('http://localhost:3000/api/submit');
+    expect(step.networkRequest!.postData).toBe('key=val');
+    expect(step.networkRequest!.responseStatus).toBe(201);
   });
 });

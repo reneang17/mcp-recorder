@@ -12,8 +12,10 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:unit": "vitest run tests/correlator.test.ts tests/filters.test.ts tests/post-filters.test.ts",
-    "test:integration": "vitest run tests/integration.test.ts",
+    "test:unit": "vitest run tests/unit/",
+    "test:integration": "vitest run tests/integration/",
+    "test:e2e": "vitest run tests/e2e/",
+    "test:ci": "vitest run tests/unit/ tests/integration/",
     "cli": "npx tsx src/cli.ts"
   },
   "keywords": [

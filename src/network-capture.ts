@@ -4,6 +4,76 @@ import { NetworkRequest, RecorderOptions } from './types';
 import { runCaptureFilters, CaptureFilterResult } from './filters';
 import { CDPConnection } from './cdp-client';
 
+// ────────────────────────────────────────────────────────────────
+// Standalone parsing functions (exported for unit testing)
+// ────────────────────────────────────────────────────────────────
+
+/**
+ * Extract content-type from headers (case-insensitive).
+ */
+export function getContentType(headers: Record<string, string>): string {
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.toLowerCase() === 'content-type') {
+      return value.toLowerCase();
+    }
+  }
+  return '';
+}
+
+/**
+ * Parse POST body into a structured object if possible.
+ */
+export function parseBody(
+  postData: string | null | undefined,
+  headers: Record<string, string>
+): Record<string, any> | null {
+  if (!postData) return null;
+
+  const contentType = getContentType(headers);
+
+  // Try JSON
+  if (contentType.includes('json')) {
+    try {
+      return JSON.parse(postData);
+    } catch {
+      return null;
+    }
+  }
+
+  // Try form-urlencoded
+  if (contentType.includes('x-www-form-urlencoded')) {
+    try {
+      const params = new URLSearchParams(postData);
+      const result: Record<string, string> = {};
+      for (const [key, value] of params) {
+        result[key] = value;
+      }
+      return result;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Detect the body encoding type.
+ */
+export function detectEncoding(
+  postData: string | null | undefined,
+  headers: Record<string, string>
+): NetworkRequest['bodyEncoding'] {
+  if (!postData) return 'none';
+
+  const contentType = getContentType(headers);
+
+  if (contentType.includes('json')) return 'json';
+  if (contentType.includes('x-www-form-urlencoded')) return 'form-urlencoded';
+  if (contentType.includes('multipart')) return 'multipart';
+  return 'text';
+}
+
 /**
  * Manages CDP Network domain capture.
  * Pairs requestWillBeSent with responseReceived by requestId.
@@ -65,8 +135,8 @@ export class NetworkCapture {
         url: request.url,
         requestHeaders: request.headers || {},
         postData: request.postData || null,
-        parsedBody: this.parseBody(request.postData, request.headers),
-        bodyEncoding: this.detectEncoding(request.postData, request.headers),
+        parsedBody: parseBody(request.postData, request.headers),
+        bodyEncoding: detectEncoding(request.postData, request.headers),
         responseStatus: null,
         resourceType,
       };
@@ -122,69 +192,4 @@ export class NetworkCapture {
     return [...this.capturedRequests];
   }
 
-  /**
-   * Parse POST body into a structured object if possible.
-   */
-  private parseBody(
-    postData: string | null | undefined,
-    headers: Record<string, string>
-  ): Record<string, any> | null {
-    if (!postData) return null;
-
-    const contentType = this.getContentType(headers);
-
-    // Try JSON
-    if (contentType.includes('json')) {
-      try {
-        return JSON.parse(postData);
-      } catch {
-        return null;
-      }
-    }
-
-    // Try form-urlencoded
-    if (contentType.includes('x-www-form-urlencoded')) {
-      try {
-        const params = new URLSearchParams(postData);
-        const result: Record<string, string> = {};
-        for (const [key, value] of params) {
-          result[key] = value;
-        }
-        return result;
-      } catch {
-        return null;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Detect the body encoding type.
-   */
-  private detectEncoding(
-    postData: string | null | undefined,
-    headers: Record<string, string>
-  ): NetworkRequest['bodyEncoding'] {
-    if (!postData) return 'none';
-
-    const contentType = this.getContentType(headers);
-
-    if (contentType.includes('json')) return 'json';
-    if (contentType.includes('x-www-form-urlencoded')) return 'form-urlencoded';
-    if (contentType.includes('multipart')) return 'multipart';
-    return 'text';
-  }
-
-  /**
-   * Extract content-type from headers (case-insensitive).
-   */
-  private getContentType(headers: Record<string, string>): string {
-    for (const [key, value] of Object.entries(headers)) {
-      if (key.toLowerCase() === 'content-type') {
-        return value.toLowerCase();
-      }
-    }
-    return '';
-  }
 }
