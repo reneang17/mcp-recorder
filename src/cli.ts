@@ -3,16 +3,19 @@
 
 import { Recorder } from './recorder';
 import { FilterConfig, DEFAULT_FILTER_CONFIG } from './types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface CLIArgs {
   port: number;
   duration: number | null;
   filters: Partial<FilterConfig>;
+  log: boolean;
 }
 
 function parseArgs(): CLIArgs {
   const args = process.argv.slice(2);
-  const result: CLIArgs = { port: 9222, duration: null, filters: {} };
+  const result: CLIArgs = { port: 9222, duration: null, filters: {}, log: false };
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
@@ -24,6 +27,10 @@ function parseArgs(): CLIArgs {
       case '--duration':
       case '-d':
         result.duration = parseInt(args[++i], 10);
+        break;
+
+      case '--log':
+        result.log = true;
         break;
 
       // ── Post-filter flags ──
@@ -121,6 +128,7 @@ Usage: mcp-recorder [options]
 Options:
   --port, -p          CDP port (default: 9222)
   --duration, -d      Recording duration in seconds (default: until Ctrl+C)
+  --log               Automatically save the output JSON to a logs/ directory
   --debug             Log every filter decision to stderr
 
 Post-recording filters:
@@ -212,6 +220,31 @@ async function main() {
 
       // Output JSON to stdout
       console.log(JSON.stringify(steps, null, 2));
+
+      // Handle optional logging to file
+      if (args.log) {
+        let domain = 'unknown-domain';
+        const firstUrl = steps.find(s => s.domEvent?.url)?.domEvent?.url || 
+                         steps.find(s => s.networkRequest?.url)?.networkRequest?.url;
+        
+        if (firstUrl) {
+          try {
+            domain = new URL(firstUrl).hostname.replace(/[^a-zA-Z0-9-]/g, '_');
+          } catch {}
+        }
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `${domain}_${timestamp}.json`;
+        const logsDir = path.join(process.cwd(), 'logs');
+
+        if (!fs.existsSync(logsDir)) {
+          fs.mkdirSync(logsDir, { recursive: true });
+        }
+
+        const filepath = path.join(logsDir, filename);
+        fs.writeFileSync(filepath, JSON.stringify(steps, null, 2));
+        console.error(`[mcp-recorder] Log saved to: ${filepath}`);
+      }
 
       console.error(
         `[mcp-recorder] Done. Captured ${steps.length} step(s).`
