@@ -1,0 +1,37 @@
+{
+  "name": "mcp-recorder",
+  "version": "1.0.0",
+  "description": "CDP Recording Engine - captures DOM events and network requests from Chrome via DevTools Protocol",
+  "main": "dist/recorder.js",
+  "types": "dist/recorder.d.ts",
+  "bin": {
+    "mcp-recorder": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/correlator.test.ts tests/filters.test.ts tests/post-filters.test.ts",
+    "test:integration": "vitest run tests/integration.test.ts",
+    "cli": "npx tsx src/cli.ts"
+  },
+  "keywords": [
+    "mcp",
+    "chrome",
+    "cdp",
+    "recorder",
+    "devtools"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome-remote-interface": "^0.31.14",
+    "@types/node": "^20.11.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "dependencies": {
+    "chrome-remote-interface": "^0.33.2"
+  }
+}
