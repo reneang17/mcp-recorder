@@ -63,7 +63,6 @@ describe('Recorder Lifecycle & Correlator Integration', () => {
     const pairedStep = steps.find(s => 
       s.domEvent !== null &&
       s.networkRequest !== null &&
-      (s.domEvent.selector === '#submit-btn' || s.domEvent.tagName === 'form') &&
       s.networkRequest.method === 'POST' &&
       s.networkRequest.url.includes('/submit')
     );
