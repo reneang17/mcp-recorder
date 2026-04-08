@@ -4,3 +4,4 @@ dist/
 *.d.ts
 !vitest.config.ts
 .DS_Store
+logs/
