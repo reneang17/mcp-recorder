@@ -86,13 +86,13 @@ Living document tracking the evolution of the test suite, what's passing, what's
 
 ## Phase 4: GitHub Actions CI
 
-- [ ] Create `.github/workflows/test.yml`
-- [ ] Unit tests job (no Chrome needed)
-- [ ] Integration tests job (Puppeteer bundles Chrome)
-- [ ] E2E tests job (Playwright installs Chromium)
-- [ ] Verify green on GitHub
+- [x] Create `.github/workflows/test.yml`
+- [x] Unit tests job (no Chrome needed)
+- [x] Integration tests job (Puppeteer bundles Chrome)
+- [x] E2E tests job (Playwright installs Chromium)
+- [x] Verify green on GitHub
 
-### Status: ⏳ Not started
+### Status: ✅ Completed
 
 ---
 
