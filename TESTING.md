@@ -72,15 +72,15 @@ Living document tracking the evolution of the test suite, what's passing, what's
 
 ### Infrastructure
 
-- [ ] Install `playwright` as dev dependency
-- [ ] Create `tests/helpers/playwright-harness.ts`
+- [x] Install `playwright` as dev dependency
+- [x] Create `tests/helpers/playwright-harness.ts`
 
 ### New Test Files
 
-- [ ] `tests/e2e/httpbin.test.ts` — form POST on httpbin.org
-- [ ] `tests/e2e/mdn-form.test.ts` — MDN GitHub-hosted example form
+- [x] `tests/e2e/httpbin.test.ts` — form POST on httpbin.org
+- [x] `tests/e2e/mdn-form.test.ts` — MDN GitHub-hosted example form
 
-### Status: ⏳ Not started
+### Status: ✅ Completed
 
 ---
 
@@ -114,3 +114,4 @@ Track every production code change made for testability or bug fixes discovered 
 | 2026-04-08 | 84/84 ✅ | 9/9 ✅ | — | 93/93 | `7612896` (initial commit) |
 | 2026-04-08 | 133/133 ✅ | — | — | 133/133 | (Phase 1 complete) |
 | 2026-04-08 | 133/133 ✅ | 10/10 ✅ | — | 143/143 | (Phase 2 complete) |
+| 2026-04-08 | 133/133 ✅ | 10/10 ✅ | 2/2 ✅ | 145/145 | (Phase 3 complete) |
