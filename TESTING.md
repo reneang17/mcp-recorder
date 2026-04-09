@@ -1,5 +1,6 @@
 # Testing Progress — MCP Recorder
 
+![Tests: 146/146 Passing](https://img.shields.io/badge/Tests-146%2F146%20Passing-brightgreen?style=for-the-badge)
 Living document tracking the evolution of the test suite, what's passing, what's pending, and what source changes were needed along the way.
 
 ---
@@ -9,9 +10,9 @@ Living document tracking the evolution of the test suite, what's passing, what's
 | Tier | Tests | Passing | Framework | Notes |
 |------|-------|---------|-----------|-------|
 | Unit | 84 | ✅ 84/84 | vitest | Original AI-generated tests; assertions are vague |
-| Integration | 9 | ✅ 9/9 | vitest + raw CDP | Synthetic events, not real interactions |
-| E2E | 0 | — | — | Not yet created |
-| **Total** | **93** | **93/93** | | |
+| Integration | 11 | ✅ 11/11 | vitest + puppeteer | Real CDP tracking, lifecycle & CLI log tests |
+| E2E | 2 | ✅ 2/2 | vitest + playwright | Live site tests with noise isolation |
+| **Total** | **146** | **146/146** | | |
 
 **Last verified**: 2026-04-08 — `npm run test:unit` passes (84 tests, 262ms)
 
@@ -114,4 +115,4 @@ Track every production code change made for testability or bug fixes discovered 
 | 2026-04-08 | 84/84 ✅ | 9/9 ✅ | — | 93/93 | `7612896` (initial commit) |
 | 2026-04-08 | 133/133 ✅ | — | — | 133/133 | (Phase 1 complete) |
 | 2026-04-08 | 133/133 ✅ | 10/10 ✅ | — | 143/143 | (Phase 2 complete) |
-| 2026-04-08 | 133/133 ✅ | 10/10 ✅ | 2/2 ✅ | 145/145 | (Phase 3 complete) |
+| 2026-04-08 | 133/133 ✅ | 11/11 ✅ | 2/2 ✅ | 146/146 | (CLI logging suite) |
