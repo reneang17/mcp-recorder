@@ -8,6 +8,9 @@
 // See docs/filtering.md for full documentation.
 
 import { CaptureFilterConfig } from './types';
+import defaultFilterList from './default-filter-list.json';
+
+const { blockedProtocols, blockedTrackerDomains, blockedResourceTypes, blockedExtensions } = defaultFilterList;
 
 // ────────────────────────────────────────────────────────────────
 // Filter result — every filter decision is traceable
@@ -26,10 +29,8 @@ export interface CaptureFilterResult {
 // Filter 1: Blocked protocols
 // ────────────────────────────────────────────────────────────────
 
-const BLOCKED_PROTOCOLS = ['chrome-extension:', 'data:', 'blob:', 'devtools:'];
-
 export function filterProtocols(url: string): CaptureFilterResult {
-  for (const proto of BLOCKED_PROTOCOLS) {
+  for (const proto of blockedProtocols) {
     if (url.startsWith(proto)) {
       return {
         keep: false,
@@ -45,42 +46,12 @@ export function filterProtocols(url: string): CaptureFilterResult {
 // Filter 2: Known tracker domains
 // ────────────────────────────────────────────────────────────────
 
-const BLOCKED_DOMAINS = [
-  'google-analytics.com',
-  'googletagmanager.com',
-  'analytics.google.com',
-  'facebook.com',
-  'connect.facebook.net',
-  'doubleclick.net',
-  'googlesyndication.com',
-  'googleadservices.com',
-  'hotjar.com',
-  'segment.io',
-  'segment.com',
-  'mixpanel.com',
-  'amplitude.com',
-  'sentry.io',
-  'newrelic.com',
-  'nr-data.net',
-  'fullstory.com',
-  'clarity.ms',
-  'demdex.net',
-  'optimizely.com',
-  'crazyegg.com',
-  'mouseflow.com',
-  'heapanalytics.com',
-  'intercom.io',
-  'intercomcdn.com',
-  'hubspot.com',
-  'hs-analytics.net',
-];
-
 export function filterTrackerDomains(url: string): CaptureFilterResult {
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname.toLowerCase();
 
-    for (const domain of BLOCKED_DOMAINS) {
+    for (const domain of blockedTrackerDomains) {
       if (hostname === domain || hostname.endsWith('.' + domain)) {
         return {
           keep: false,
@@ -100,24 +71,12 @@ export function filterTrackerDomains(url: string): CaptureFilterResult {
 // Filter 3: Resource types (CDP-level classification)
 // ────────────────────────────────────────────────────────────────
 
-const BLOCKED_RESOURCE_TYPES = [
-  'Image',
-  'Font',
-  'Media',
-  'Stylesheet',
-  'Manifest',
-  'Ping',
-  'Preflight',
-  'CSPViolationReport',
-  'Other',
-];
-
 export function filterResourceTypes(
   resourceType: string,
   allowedTypes: string[]
 ): CaptureFilterResult {
   // First check the global blocklist
-  if (BLOCKED_RESOURCE_TYPES.includes(resourceType)) {
+  if (blockedResourceTypes.includes(resourceType)) {
     return {
       keep: false,
       rejectedBy: 'resource-types',
@@ -141,31 +100,11 @@ export function filterResourceTypes(
 // Filter 4: Static asset file extensions
 // ────────────────────────────────────────────────────────────────
 
-const BLOCKED_EXTENSIONS = [
-  /favicon\.ico$/i,
-  /\.woff2?$/i,
-  /\.ttf$/i,
-  /\.eot$/i,
-  /\.otf$/i,
-  /\.png$/i,
-  /\.jpg$/i,
-  /\.jpeg$/i,
-  /\.gif$/i,
-  /\.svg$/i,
-  /\.webp$/i,
-  /\.avif$/i,
-  /\.ico$/i,
-  /\.mp4$/i,
-  /\.webm$/i,
-  /\.mp3$/i,
-  /\.ogg$/i,
-];
-
 export function filterFileExtensions(url: string): CaptureFilterResult {
   try {
-    const pathname = new URL(url).pathname;
-    for (const pattern of BLOCKED_EXTENSIONS) {
-      if (pattern.test(pathname)) {
+    const pathname = new URL(url).pathname.toLowerCase();
+    for (const ext of blockedExtensions) {
+      if (pathname.endsWith(ext)) {
         return {
           keep: false,
           rejectedBy: 'file-extensions',
@@ -290,7 +229,7 @@ export function isNoiseUrl(url: string): boolean {
 
 /** Returns true if the resource type is noise. */
 export function isNoiseResourceType(resourceType: string): boolean {
-  return BLOCKED_RESOURCE_TYPES.includes(resourceType);
+  return blockedResourceTypes.includes(resourceType);
 }
 
 /** Returns true if the request should be captured (not noise). */

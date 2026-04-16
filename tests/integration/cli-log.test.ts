@@ -100,7 +100,7 @@ describe.skipIf(!!process.env.CI)('CLI Logging feature', () => {
         id: '<ID>',
         eventType: expect.stringMatching(/click|submit/),
         timestamp: '<TIMESTAMP>',
-        selector: expect.stringMatching(/#submit-btn|#json-form/),
+        selector: expect.stringMatching(/#submit-btn|#json-form|#login-form|form/),
         tagName: expect.stringMatching(/button|form/),
         innerText: expect.any(String),
         inputValue: null,

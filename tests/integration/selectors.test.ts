@@ -53,9 +53,9 @@ describe('Selectors Priority Testing', () => {
     expect(input4Event).toBeDefined();
     expect(input4Event!.selector).toBe('input[name="input4"]');
 
-    // 5. Bare tag path fallback
+    // 5. Bare tag path fallback (Now uses robust @medv/finder resolution)
     const spanEvent = domEvents.find(e => e?.innerText === 'Click me');
     expect(spanEvent).toBeDefined();
-    expect(spanEvent!.selector).toMatch(/body > div > div > span/i);
+    expect(spanEvent!.selector).toBe('.nested-span');
   }, 15000);
 });

@@ -24,18 +24,18 @@ Living document tracking the evolution of the test suite, what's passing, what's
 
 ### Directory Migration
 
-- [x] `tests/correlator.test.ts` → `tests/unit/correlator.test.ts`
-- [x] `tests/filters.test.ts` → `tests/unit/filters.test.ts`
-- [x] `tests/post-filters.test.ts` → `tests/unit/post-filters.test.ts`
+- [x] `../tests/correlator.test.ts` → `../tests/unit/correlator.test.ts`
+- [x] `../tests/filters.test.ts` → `../tests/unit/filters.test.ts`
+- [x] `../tests/post-filters.test.ts` → `../tests/unit/post-filters.test.ts`
 - [x] Remove old integration tests (rewritten in Phase 2)
-- [x] Update `vitest.config.ts` for new structure
-- [x] Update `package.json` scripts
+- [x] Update `../vitest.config.ts` for new structure
+- [x] Update `../package.json` scripts
 
 ### New Unit Tests
 
-- [x] `tests/unit/correlator.test.ts` — add edge cases (same-timestamp, boundary window, rapid-fire, large-scale, all event type descriptions)
-- [x] `tests/unit/network-parse.test.ts` — `parseBody`/`detectEncoding`/`getContentType` (requires minor source refactor)
-- [x] `tests/unit/recorder-lifecycle.test.ts` — constructor merging, `isRecording()`, `getFilterConfig()`
+- [x] `../tests/unit/correlator.test.ts` — add edge cases (same-timestamp, boundary window, rapid-fire, large-scale, all event type descriptions)
+- [x] `../tests/unit/network-parse.test.ts` — `parseBody`/`detectEncoding`/`getContentType` (requires minor source refactor)
+- [x] `../tests/unit/recorder-lifecycle.test.ts` — constructor merging, `isRecording()`, `getFilterConfig()`
 
 ### Source Changes Required
 
@@ -52,16 +52,16 @@ Living document tracking the evolution of the test suite, what's passing, what's
 ### Infrastructure
 
 - [x] Install `puppeteer` as dev dependency
-- [x] Create `tests/helpers/puppeteer-harness.ts` — shared setup/teardown
-- [x] Create 7 new test fixtures in `test-fixtures/`
+- [x] Create `../tests/helpers/puppeteer-harness.ts` — shared setup/teardown
+- [x] Create 7 new test fixtures in `../test-fixtures/`
 
 ### New Test Files
 
-- [x] `tests/integration/dom-capture.test.ts` — real clicks, typing, submit, Enter, select, checkbox
-- [x] `tests/integration/navigation.test.ts` — **critical**: events survive page navigation
-- [x] `tests/integration/network-capture.test.ts` — form POST, JSON POST, failed requests, noise filtering
-- [x] `tests/integration/selectors.test.ts` — full priority chain (`data-testid > id > aria-label > name > tag path`)
-- [x] `tests/integration/recorder.test.ts` — full lifecycle, correlated steps, post-filters
+- [x] `../tests/integration/dom-capture.test.ts` — real clicks, typing, submit, Enter, select, checkbox
+- [x] `../tests/integration/navigation.test.ts` — **critical**: events survive page navigation
+- [x] `../tests/integration/network-capture.test.ts` — form POST, JSON POST, failed requests, noise filtering
+- [x] `../tests/integration/selectors.test.ts` — full priority chain (`data-testid > id > aria-label > name > tag path`)
+- [x] `../tests/integration/recorder.test.ts` — full lifecycle, correlated steps, post-filters
 
 ### Status: ✅ Completed
 
@@ -74,12 +74,12 @@ Living document tracking the evolution of the test suite, what's passing, what's
 ### Infrastructure
 
 - [x] Install `playwright` as dev dependency
-- [x] Create `tests/helpers/playwright-harness.ts`
+- [x] Create `../tests/helpers/playwright-harness.ts`
 
 ### New Test Files
 
-- [x] `tests/e2e/httpbin.test.ts` — form POST on httpbin.org
-- [x] `tests/e2e/mdn-form.test.ts` — MDN GitHub-hosted example form
+- [x] `../tests/e2e/httpbin.test.ts` — form POST on httpbin.org
+- [x] `../tests/e2e/mdn-form.test.ts` — MDN GitHub-hosted example form
 
 ### Status: ✅ Completed
 
@@ -87,7 +87,7 @@ Living document tracking the evolution of the test suite, what's passing, what's
 
 ## Phase 4: GitHub Actions CI
 
-- [x] Create `.github/workflows/test.yml`
+- [x] Create `../.github/workflows/test.yml`
 - [x] Unit tests job (no Chrome needed)
 - [x] Integration tests job (Puppeteer bundles Chrome)
 - [x] E2E tests job (Playwright installs Chromium)
@@ -103,8 +103,8 @@ Track every production code change made for testability or bug fixes discovered 
 
 | Date | File | Change | Reason |
 |------|------|--------|--------|
-| 2026-04-08 | `src/network-capture.ts` | Extracted `parseBody`, `detectEncoding`, `getContentType` into standalone exported functions | To allow unit testing of parsing logic without full class instantiation |
-| 2026-04-08 | `src/dom-capture.ts` | Switched from `Runtime.evaluate` to `Page.addScriptToEvaluateOnNewDocument` | Fix critical bug: capture script was lost on page navigations. Real integration tests caught this. |
+| 2026-04-08 | `../src/network-capture.ts` | Extracted `parseBody`, `detectEncoding`, `getContentType` into standalone exported functions | To allow unit testing of parsing logic without full class instantiation |
+| 2026-04-08 | `../src/dom-capture.ts` | Switched from `Runtime.evaluate` to `Page.addScriptToEvaluateOnNewDocument` | Fix critical bug: capture script was lost on page navigations. Real integration tests caught this. |
 
 ---
 

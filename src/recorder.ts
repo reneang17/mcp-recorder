@@ -82,7 +82,7 @@ export class Recorder {
 
     // Start both capture streams
     await this.networkCapture.start(this.connection);
-    await this.domCapture.start(this.connection);
+    await this.domCapture.start(this.connection, this.options.filters.debug);
   }
 
   /**

@@ -37,6 +37,7 @@
     "vitest": "^1.2.0"
   },
   "dependencies": {
+    "@medv/finder": "^4.0.2",
     "chrome-remote-interface": "^0.33.2"
   }
 }

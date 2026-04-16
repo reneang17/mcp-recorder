@@ -2,6 +2,7 @@
 
 import { DomEvent } from './types';
 import { CDPConnection } from './cdp-client';
+import fs from 'fs';
 
 /**
  * The script injected into the target page to capture DOM events.
@@ -9,10 +10,23 @@ import { CDPConnection } from './cdp-client';
  * instead of polling, which prevents event loss on page navigation.
  */
 function getDomCaptureScript(bindingName: string): string {
+  let finderCode = '';
+  try {
+    const finderPath = require.resolve('@medv/finder/finder.js');
+    const rawFinder = fs.readFileSync(finderPath, 'utf8');
+    // Strip export tags inside the JS so it runs as a standard script block.
+    // Also change `export function` to `function` to prevent syntax errors.
+    finderCode = rawFinder.replace(/^export\s+/gm, '');
+  } catch (err) {
+    console.error('[DomCapture] Failed to load @medv/finder:', err);
+  }
+
   return `
 (function() {
   if (window.__mcp_dom_events_installed) return;
   window.__mcp_dom_events_installed = true;
+
+  ${finderCode}
 
   let eventCounter = 0;
 
@@ -23,7 +37,7 @@ function getDomCaptureScript(bindingName: string): string {
   function bestSelector(el) {
     if (!el || !el.tagName) return 'unknown';
 
-    // Priority: data-testid > id > aria-label > name > tag path
+    // 1. Explicit priority attributes
     if (el.dataset && el.dataset.testid) {
       return '[data-testid="' + el.dataset.testid + '"]';
     }
@@ -37,19 +51,20 @@ function getDomCaptureScript(bindingName: string): string {
       return el.tagName.toLowerCase() + '[name="' + el.name + '"]';
     }
 
-    // Build a simple path
-    var parts = [];
-    var current = el;
-    while (current && current.tagName && parts.length < 4) {
-      var tag = current.tagName.toLowerCase();
-      if (current.id) {
-        parts.unshift('#' + current.id + ' > ' + parts.shift());
-        break;
+    // 2. Use @medv/finder for robust relative/nested selector generation (replacing old fragile path logic)
+    if (typeof finder !== 'undefined') {
+      try {
+        return finder(el, { 
+          seedMinLength: 3,
+          className: () => true
+        });
+      } catch (e) {
+        // Fallback in case finder throws
       }
-      parts.unshift(tag);
-      current = current.parentElement;
     }
-    return parts.join(' > ');
+
+    // 3. Absolute minimum fallback
+    return el.tagName.toLowerCase();
   }
 
   function truncate(str, max) {
@@ -148,6 +163,7 @@ export class DomCapture {
   private events: DomEvent[] = [];
   private injected = false;
   private bindingName = '__mcp_pushDomEvent';
+  private debug = false;
 
   // Keep a fallback poller for pages where binding might not work
   private pollingInterval: ReturnType<typeof setInterval> | null = null;
@@ -156,10 +172,11 @@ export class DomCapture {
    * Start capturing DOM events.
    * Sets up a binding for real-time push, then injects the capture script.
    */
-  async start(connection: CDPConnection): Promise<void> {
+  async start(connection: CDPConnection, debug: boolean = false): Promise<void> {
     this.connection = connection;
     this.events = [];
     this.injected = false;
+    this.debug = debug;
 
     // Enable required domains
     await this.connection.Runtime.enable();
@@ -183,8 +200,10 @@ export class DomCapture {
           try {
             const event: DomEvent = JSON.parse(params.payload);
             this.events.push(event);
-          } catch {
-            // Ignore invalid events
+          } catch (err) {
+            if (this.debug) {
+              console.error('[DomCapture] Failed to parse event payload:', params.payload, err);
+            }
           }
         }
       }
@@ -255,7 +274,10 @@ export class DomCapture {
         }
         return rawEvents;
       }
-    } catch {
+    } catch (err) {
+      if (this.debug) {
+        console.error('[DomCapture] drainBufferedEvents run failed, attempting to reinject:', err);
+      }
       // Page might have navigated — re-inject
       this.injected = false;
       await this.injectScript();
